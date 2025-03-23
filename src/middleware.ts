@@ -36,11 +36,13 @@ const refreshAccessToken = async (req: NextRequest) => {
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-
-  const publicPaths = ["/login", "/register", "/"];
+  console.log(path);
+  
+  const publicPaths = ["/login", "/verify", "/"];
   if (publicPaths.includes(path)) {
     return NextResponse.next();
   }
+  
 
   const accessToken = request.cookies.get("access_token")?.value;
 
@@ -72,5 +74,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|public).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|public).*)",],
 };

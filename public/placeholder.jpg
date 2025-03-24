@@ -1,0 +1,11 @@
+This is a placeholder for an image file.
+
+To use real images in the project:
+1. Add JPG, PNG, or WebP files to the public directory
+2. Name them appropriately (e.g., placeholder.jpg)
+3. Reference them in your code as "/placeholder.jpg"
+
+For development purposes, you could:
+- Use external placeholder services like https://placeholder.com
+- Create simple colored boxes with CSS
+- Use data URIs for small simple images 

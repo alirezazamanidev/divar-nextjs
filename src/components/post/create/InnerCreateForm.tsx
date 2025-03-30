@@ -104,10 +104,7 @@ export default function InnerCreatePostForm({ category, values, setFieldValue, e
       <div className="mb-8">
         <h3 className="text-lg font-medium mb-4 text-right text-gray-300">موقعیت مکانی</h3>
         <LocationSelector 
-          provinceFieldName="provinceId"
-          cityFieldName="cityId"
-          provinceRequired={true} 
-          cityRequired={true}
+         
         />
       </div>
 

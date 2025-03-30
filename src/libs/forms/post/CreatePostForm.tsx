@@ -14,8 +14,8 @@ interface CreatePostFormValues {
   description: string;
   images?: File[];
   videos?: File[];
-  provinceId: string;
-  cityId: string;
+  province: string;
+  city: string;
   [key: string]: any;
 }
 
@@ -36,9 +36,9 @@ const createDynamicSchema = (formFields: FormField[]) => {
       .max(10, 'حداکثر 10 تصویر می‌توانید آپلود کنید'),
     videos: Yup.array()
       .max(1, 'فقط یک ویدیو می‌توانید آپلود کنید'),
-    provinceId: Yup.string()
+    province: Yup.string()
       .required('لطفا استان را انتخاب کنید'),
-    cityId: Yup.string()
+    city: Yup.string()
       .required('لطفا شهر را انتخاب کنید'),
   };
 
@@ -158,8 +158,8 @@ const CreatePostForm = withFormik<CreatePostFormProps, CreatePostFormValues>({
       description: '',
       images: [],
       videos: [],
-      provinceId: '',
-      cityId: '',
+      province: '',
+      city: '',
     };
     
     // Initialize all dynamic fields from the category

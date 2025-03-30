@@ -24,14 +24,14 @@ const HeadlessSwitch = ({ name, label, required }: { name: string, label: string
       <div className="flex flex-row-reverse items-center justify-between mb-1">
         <div className="flex items-center">
           <span className="mr-3 text-gray-200 text-sm font-medium">
-            {label}{required && <span className="text-red-500 mr-1">*</span>}
+            {label}{required && <span className="text-red-500 mr-3">*</span>}
           </span>
           <Switch
             checked={isChecked}
             onChange={handleChange}
             className={`${
               isChecked ? 'bg-blue-600' : 'bg-gray-700'
-            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
+            } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 mr-1 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900`}
           >
             <span className="sr-only">{label}</span>
             <span

@@ -16,6 +16,9 @@ interface CreatePostFormValues {
   videos?: File[];
   province: string;
   city: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
   [key: string]: any;
 }
 
@@ -40,6 +43,12 @@ const createDynamicSchema = (formFields: FormField[]) => {
       .required('لطفا استان را انتخاب کنید'),
     city: Yup.string()
       .required('لطفا شهر را انتخاب کنید'),
+    address: Yup.string()
+      .max(500, 'آدرس نمی‌تواند بیشتر از 500 کاراکتر باشد'),
+    latitude: Yup.number()
+      .transform((value) => (isNaN(value) ? undefined : value)),
+    longitude: Yup.number()
+      .transform((value) => (isNaN(value) ? undefined : value)),
   };
 
   formFields.forEach(field => {
@@ -160,6 +169,9 @@ const CreatePostForm = withFormik<CreatePostFormProps, CreatePostFormValues>({
       videos: [],
       province: '',
       city: '',
+      address: '',
+      latitude: undefined,
+      longitude: undefined,
     };
     
     // Initialize all dynamic fields from the category
@@ -204,8 +216,17 @@ const CreatePostForm = withFormik<CreatePostFormProps, CreatePostFormValues>({
       formData.append('title', values.title);
       formData.append('description', values.description);
       formData.append('category', props.category.id.toString());
-      formData.append('provinceId', values.provinceId);
-      formData.append('cityId', values.cityId);
+      formData.append('province', values.province);
+      formData.append('city', values.city);
+      
+      if (values.address) {
+        formData.append('address', values.address);
+      }
+      
+      if (values.latitude !== undefined && values.longitude !== undefined) {
+        formData.append('latitude', values.latitude.toString());
+        formData.append('longitude', values.longitude.toString());
+      }
       
       // Add dynamic form fields
       props.category.formFields.forEach(field => {

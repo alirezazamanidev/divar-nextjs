@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Header from '@/components/home/Header';
 import Footer from '@/components/home/Footer';
-import AdCard from '@/components/home/AdCard';
+import AdCard from '@/components/post/AdCard';
 import FilterSection from '@/components/home/FilterSection';
 import MobileFilters from '@/components/home/MobileFilters';
 import HorizontalCategories from '@/components/home/HorizontalCategories';

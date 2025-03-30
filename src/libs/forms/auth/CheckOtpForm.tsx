@@ -4,10 +4,10 @@ import { withFormik, FormikHelpers } from "formik";
 import { z } from "zod";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { callApi } from "../helpers/callapi";
+import { callApi } from "../../helpers/callapi";
 import { UnauthorizedException } from "@/libs/exceptions";
 import InnerCheckOtpForm from "@/components/auth/InnerCheckOtpform";
-import { handleApiError } from "../helpers/errorHandler";
+import { handleApiError } from "../../helpers/errorHandler";
 
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 

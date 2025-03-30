@@ -8,8 +8,8 @@ import { useRouter } from "next/navigation";
 
 import { UnauthorizedException } from "@/libs/exceptions";
 import InnerLoginForm from "@/components/auth/InnerLoginform";
-import { handleApiError } from "../helpers/errorHandler";
-import { callApi } from "../helpers/callapi";
+import { handleApiError } from "../../helpers/errorHandler";
+import { callApi } from "../../helpers/callapi";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 // Interface definitions

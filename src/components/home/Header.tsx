@@ -44,9 +44,9 @@ export default function Header() {
           <button className="flex items-center gap-1 text-sm text-gray-300 hover:text-white transition-colors">
             <span className="hidden md:inline">دیوار من</span>
           </button>
-          <button className="bg-red-700 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 transition-colors shadow-sm">
+          <Link href="/new" className="bg-red-700 text-white px-4 py-2 rounded-md text-sm hover:bg-red-600 transition-colors shadow-sm">
             ثبت آگهی
-          </button>
+          </Link>
         </div>
       </div>
     </header>

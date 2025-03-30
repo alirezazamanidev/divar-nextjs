@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 // تنظیمات مسیرها
 const PATHS = {
   PUBLIC: ["/login", "/verify", "/"],
-  PROTECTED: ["/dashboard", "/profile", "/settings"],
+  PROTECTED: ["/dashboard", "/profile", "/settings",'/new'],
   LOGIN: ["/login", "/verify"],
   DASHBOARD: "/dashboard",
 };

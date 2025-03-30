@@ -1,6 +1,6 @@
 "use client";
 
-import CheckOtpForm from "@/libs/forms/CheckOtpForm";
+import CheckOtpForm from "@/libs/forms/auth/CheckOtpForm";
 import { useAuthStore } from "@/libs/store/auth";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

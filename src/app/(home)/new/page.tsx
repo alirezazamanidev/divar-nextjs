@@ -1,49 +1,47 @@
-'use client';
-
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Header from '@/components/home/Header';
 import CategorySearch from '@/components/home/CategorySearch';
+import getCreatePostForm, {
+  CreatePostDataForm,
+} from '@/libs/services/post.service';
+import { cookies } from 'next/headers';
+import { Category } from '@/libs/models/category';
+import InnerCreateForm from '@/components/post/create/InnerCreateForm';
+import CreatePostForm from '@/libs/forms/post/CreatePostForm';
+import { FormField } from '@/libs/models/formFiled';
 
-export default function NewAdPage() {
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<number | null>(null);
-  const router = useRouter();
+export default async function NewPostPage({
+  searchParams,
+}: {
+  searchParams:Promise<{ slug: string }>
+}) {
+  const {slug} = await searchParams;
+  const cookieStore = await cookies();
 
-  // Handle category selection
-  const handleCategorySelect = (categoryId: number) => {
-    setSelectedCategory(categoryId);
-    setSelectedSubcategory(null);
-  };
+  const cookieString = cookieStore.toString();
 
-  // Handle subcategory selection
-  const handleSubcategorySelect = (categoryId: number, subcategoryId: number) => {
-    setSelectedCategory(categoryId);
-    setSelectedSubcategory(subcategoryId);
-    
-    // For demo purposes, we'd navigate to the next step of ad creation
-    // router.push(`/new/${categoryId}/${subcategoryId}`);
-  };
+  const {category,categories,showBack}: CreatePostDataForm = await getCreatePostForm({
+    cookies: cookieString,
+    slug: slug || undefined,
+  });
+
+
 
   return (
     <div className="bg-gray-950 min-h-screen text-gray-100">
       <Header />
-      
+
       <div className="container mx-auto px-4 pt-28 pb-10">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold mb-6 text-right">ثبت آگهی</h1>
-          <h2 className="text-xl font-medium mb-8 text-right">پیشنهاد دسته آگهی</h2>
-          
-          <CategorySearch 
-            onCategorySelect={handleCategorySelect}
-            onSubcategorySelect={handleSubcategorySelect}
-            selectedCategory={selectedCategory}
-            selectedSubcategory={selectedSubcategory}
-            onCategoryChange={() => {
-              setSelectedCategory(null);
-              setSelectedSubcategory(null);
-            }}
-          />
+
+          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+            {category?.formFields &&
+            category.formFields.length > 0 ? (
+              <CreatePostForm category={category} />
+            ) : (
+              <CategorySearch createPostData={{categories,showBack,category}} />
+            )}
+          </div>
         </div>
       </div>
     </div>

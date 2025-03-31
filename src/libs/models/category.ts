@@ -2,7 +2,7 @@ import { File } from "./file";
 import { FormField } from "./formFiled";
 
 export interface Category {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   formFields: FormField[];

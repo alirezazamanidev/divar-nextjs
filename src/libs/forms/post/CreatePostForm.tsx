@@ -41,69 +41,98 @@ const createDynamicSchema = (formFields: FormField[]) => {
       .required('توضیحات الزامی است'),
     images: Yup.array()
       .max(10, 'حداکثر 10 تصویر می‌توانید آپلود کنید')
-      .test('fileFormat', 'فرمت فایل‌های تصویر نامعتبر است. فقط JPG، PNG و WebP پشتیبانی می‌شود', function(value) {
-        if (!value || value.length === 0) return true;
-        const validFormats = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-        return value.every(file => validFormats.includes(file.type));
-      })
-      .test('fileSize', 'حجم هر تصویر نباید بیشتر از 5 مگابایت باشد', function(value) {
-        if (!value || value.length === 0) return true;
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        return value.every(file => file.size <= maxSize);
-      }),
+      .test(
+        'fileFormat',
+        'فرمت فایل‌های تصویر نامعتبر است. فقط JPG، PNG و WebP پشتیبانی می‌شود',
+        function (value) {
+          if (!value || value.length === 0) return true;
+          const validFormats = [
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/jpg',
+          ];
+          return value.every((file) => validFormats.includes(file.type));
+        },
+      )
+      .test(
+        'fileSize',
+        'حجم هر تصویر نباید بیشتر از 5 مگابایت باشد',
+        function (value) {
+          if (!value || value.length === 0) return true;
+          const maxSize = 5 * 1024 * 1024; // 5MB
+          return value.every((file) => file.size <= maxSize);
+        },
+      ),
     videos: Yup.array()
       .max(1, 'فقط یک ویدیو می‌توانید آپلود کنید')
-      .test('fileFormat', 'فرمت فایل ویدیو نامعتبر است. فقط MP4، WebM و MOV پشتیبانی می‌شود', function(value) {
-        if (!value || value.length === 0) return true;
-        const validFormats = ['video/mp4', 'video/webm', 'video/quicktime'];
-        return value.every(file => validFormats.includes(file.type));
-      })
-      .test('fileSize', 'حجم ویدیو نباید بیشتر از 100 مگابایت باشد', function(value) {
-        if (!value || value.length === 0) return true;
-        const maxSize = 100 * 1024 * 1024; // 100MB
-        return value.every(file => file.size <= maxSize);
-      })
-      .test('videoDuration', 'مدت زمان ویدیو نباید بیشتر از 2 دقیقه باشد', async function(value) {
-        if (!value || value.length === 0) return true;
-        
-        try {
-          // برای هر فایل ویدیو، مدت زمان آن را بررسی می‌کنیم
-          const checkDuration = async (file: File): Promise<boolean> => {
-            return new Promise((resolve) => {
-              const video = document.createElement('video');
-              video.preload = 'metadata';
-              
-              video.onloadedmetadata = function() {
-                URL.revokeObjectURL(video.src);
-                resolve(video.duration <= 120); // حداکثر 2 دقیقه (120 ثانیه)
-              };
-              
-              video.onerror = function() {
-                URL.revokeObjectURL(video.src);
-                resolve(false);
-              };
-              
-              video.src = URL.createObjectURL(file);
-            });
-          };
-          
-          // بررسی تمام فایل‌های ویدیو
-          const durationChecks = await Promise.all(value.map(checkDuration));
-          return durationChecks.every(result => result);
-        } catch (error) {
-          return false;
-        }
-      }),
+      .test(
+        'fileFormat',
+        'فرمت فایل ویدیو نامعتبر است. فقط MP4، WebM و MOV پشتیبانی می‌شود',
+        function (value) {
+          if (!value || value.length === 0) return true;
+          const validFormats = ['video/mp4', 'video/webm', 'video/quicktime'];
+          return value.every((file) => validFormats.includes(file.type));
+        },
+      )
+      .test(
+        'fileSize',
+        'حجم ویدیو نباید بیشتر از 100 مگابایت باشد',
+        function (value) {
+          if (!value || value.length === 0) return true;
+          const maxSize = 100 * 1024 * 1024; // 100MB
+          return value.every((file) => file.size <= maxSize);
+        },
+      )
+      .test(
+        'videoDuration',
+        'مدت زمان ویدیو نباید بیشتر از 2 دقیقه باشد',
+        async function (value) {
+          if (!value || value.length === 0) return true;
+
+          try {
+            // برای هر فایل ویدیو، مدت زمان آن را بررسی می‌کنیم
+            const checkDuration = async (file: File): Promise<boolean> => {
+              return new Promise((resolve) => {
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+
+                video.onloadedmetadata = function () {
+                  URL.revokeObjectURL(video.src);
+                  resolve(video.duration <= 120); // حداکثر 2 دقیقه (120 ثانیه)
+                };
+
+                video.onerror = function () {
+                  URL.revokeObjectURL(video.src);
+                  resolve(false);
+                };
+
+                video.src = URL.createObjectURL(file);
+              });
+            };
+
+            // بررسی تمام فایل‌های ویدیو
+            const durationChecks = await Promise.all(value.map(checkDuration));
+            return durationChecks.every((result) => result);
+          } catch (error) {
+            return false;
+          }
+        },
+      ),
     province: Yup.string().required('لطفا استان را انتخاب کنید'),
     city: Yup.string().required('لطفا شهر را انتخاب کنید'),
     address: Yup.string()
       .max(500, 'آدرس نمی‌تواند بیشتر از 500 کاراکتر باشد')
-      .test('address-validation', 'آدرس نمی‌تواند حاوی کاراکترهای خاص باشد', function(value) {
-        if (!value) return true;
-        // بررسی کاراکترهای غیرمجاز در آدرس
-        const invalidChars = /[<>{}[\]]/g;
-        return !invalidChars.test(value);
-      }),
+      .test(
+        'address-validation',
+        'آدرس نمی‌تواند حاوی کاراکترهای خاص باشد',
+        function (value) {
+          if (!value) return true;
+          // بررسی کاراکترهای غیرمجاز در آدرس
+          const invalidChars = /[<>{}[\]]/g;
+          return !invalidChars.test(value);
+        },
+      ),
     location: Yup.object().shape({
       lat: Yup.number()
         .transform((value) => (isNaN(value) ? undefined : value))
@@ -114,7 +143,7 @@ const createDynamicSchema = (formFields: FormField[]) => {
         .transform((value) => (isNaN(value) ? undefined : value))
         .required('موقعیت جغرافیایی (طول) الزامی است')
         .min(-180, 'طول جغرافیایی باید بین -180 و 180 باشد')
-        .max(180, 'طول جغرافیایی باید بین -180 و 180 باشد')
+        .max(180, 'طول جغرافیایی باید بین -180 و 180 باشد'),
     }),
     allowChatMessages: Yup.boolean(),
   };
@@ -150,9 +179,9 @@ const createDynamicSchema = (formFields: FormField[]) => {
         }
         // اضافه کردن ولیدیشن برای جلوگیری از تزریق کد مخرب
         fieldValidator = fieldValidator.test(
-          'no-html', 
-          `${field.label} نمی‌تواند شامل کدهای HTML باشد`, 
-          value => !value || !/<[^>]*>/.test(value)
+          'no-html',
+          `${field.label} نمی‌تواند شامل کدهای HTML باشد`,
+          (value) => !value || !/<[^>]*>/.test(value),
         );
         break;
 
@@ -187,9 +216,9 @@ const createDynamicSchema = (formFields: FormField[]) => {
         }
         // اضافه کردن ولیدیشن برای جلوگیری از تزریق کد مخرب
         fieldValidator = fieldValidator.test(
-          'no-dangerous-html', 
-          `${field.label} نمی‌تواند شامل کدهای مخرب باشد`, 
-          value => !value || !/<script|<iframe|javascript:/i.test(value)
+          'no-dangerous-html',
+          `${field.label} نمی‌تواند شامل کدهای مخرب باشد`,
+          (value) => !value || !/<script|<iframe|javascript:/i.test(value),
         );
         break;
 
@@ -220,7 +249,7 @@ const createDynamicSchema = (formFields: FormField[]) => {
         fieldValidator = fieldValidator.test(
           'reasonable-number',
           `مقدار ${field.label} غیرمنطقی است`,
-          value => !value || (value >= -1000000000 && value <= 1000000000)
+          (value) => !value || (value >= -1000000000 && value <= 1000000000),
         );
         break;
 
@@ -255,7 +284,9 @@ const createDynamicSchema = (formFields: FormField[]) => {
           .trim()
           .email(`لطفا یک آدرس ایمیل معتبر برای ${field.label} وارد کنید`);
         if (field.required) {
-          fieldValidator = fieldValidator.required(`لطفا ${field.label} را وارد کنید`);
+          fieldValidator = fieldValidator.required(
+            `لطفا ${field.label} را وارد کنید`,
+          );
         }
         break;
 
@@ -264,18 +295,23 @@ const createDynamicSchema = (formFields: FormField[]) => {
           .trim()
           .matches(
             /^(0|\+98)9\d{9}$/,
-            `لطفا یک شماره موبایل معتبر برای ${field.label} وارد کنید`
+            `لطفا یک شماره موبایل معتبر برای ${field.label} وارد کنید`,
           );
         if (field.required) {
-          fieldValidator = fieldValidator.required(`لطفا ${field.label} را وارد کنید`);
+          fieldValidator = fieldValidator.required(
+            `لطفا ${field.label} را وارد کنید`,
+          );
         }
         break;
 
       case 'date':
-        fieldValidator = Yup.date()
-          .typeError(`لطفا یک تاریخ معتبر برای ${field.label} وارد کنید`);
+        fieldValidator = Yup.date().typeError(
+          `لطفا یک تاریخ معتبر برای ${field.label} وارد کنید`,
+        );
         if (field.required) {
-          fieldValidator = fieldValidator.required(`لطفا ${field.label} را وارد کنید`);
+          fieldValidator = fieldValidator.required(
+            `لطفا ${field.label} را وارد کنید`,
+          );
         }
         break;
 
@@ -304,11 +340,11 @@ const CreatePostForm = withFormik<CreatePostFormProps, CreatePostFormValues>({
       videos: [],
       province: '',
       city: '',
-      allowChatMessages:false,
+      allowChatMessages: false,
       location: {
-        lat:0,
-        lng:0
-      }
+        lat: 0,
+        lng: 0,
+      },
     };
 
     // Initialize all dynamic fields from the category
@@ -350,53 +386,56 @@ const CreatePostForm = withFormik<CreatePostFormProps, CreatePostFormValues>({
 
       // Create FormData for file uploads
       const formData = new FormData();
+
+      // اضافه کردن فیلدهای اصلی
+      formData.append('categoryId', props.category.id);
       formData.append('title', values.title);
       formData.append('description', values.description);
-      formData.append('category', props.category.id.toString());
       formData.append('province', values.province);
       formData.append('city', values.city);
-      formData.append('allowChatMessages',String(values.allowChatMessages));;
+      formData.append('allowChatMessages', values.allowChatMessages.toString());
 
-      if (values.address) {
-        formData.append('address', values.address);
-      }
-
-      // Add dynamic form fields
-      const options:Record<string,any> = {};
+      formData.append('location', JSON.stringify({
+        lat: values.location.lat,
+        lng: values.location.lng
+      }));
+      const options: Record<string, any> = {};
       props.category.formFields.forEach((field) => {
         if (values[field.name] !== undefined && values[field.name] !== '') {
           if (field.type === 'number') {
-            options[field.name] = values[field.name].toString();
+            options[field.name] = Number(values[field.name]);
           } else {
             options[field.name] = values[field.name];
           }
         }
       });
-      
-      // Add formFieldsData as JSON string to formData
       formData.append('options', JSON.stringify(options));
 
-      // Add images
-      if (values.images && values.images.length > 0) {
-        values.images.forEach((image, index) => {
-          formData.append(`images[${index}]`, image);
+      // اضافه کردن فایل‌ها
+      if (values.images?.length) {
+        values.images.forEach((image) => {
+          formData.append('images', image);
         });
       }
 
-      // Add videos
-      if (values.videos && values.videos.length > 0) {
-        values.videos.forEach((video, index) => {
-          formData.append(`videos[${index}]`, video);
+      if (values.videos?.length) {
+        values.videos.forEach((video) => {
+          formData.append('videos', video);
         });
       }
-      console.log(formData);
-      
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+      }
+
       // Submit form data to API
-      const res=await callApi.post('post/create',formData);
+      const res = await callApi.post('post/create', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       console.log(res);
-      
     } catch (error) {
-      handleApiError(error)
+      handleApiError(error);
     } finally {
       setSubmitting(false);
     }

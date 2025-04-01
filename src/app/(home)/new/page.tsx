@@ -1,4 +1,3 @@
-import Header from '@/components/home/Header';
 import CategorySearch from '@/components/home/CategorySearch';
 import getCreatePostForm, {
   CreatePostDataForm,
@@ -24,24 +23,18 @@ export default async function NewPostPage({
     slug: slug || undefined,
   });
 
-
-
   return (
-    <div className="bg-gray-950 min-h-screen text-gray-100">
-      <Header />
+    <div className="container mx-auto px-4 py-6">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6 text-right">ثبت آگهی</h1>
 
-      <div className="container mx-auto px-4 pt-28 pb-10">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6 text-right">ثبت آگهی</h1>
-
-          <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
-            {category?.formFields &&
-            category.formFields.length > 0 ? (
-              <CreatePostForm category={category} />
-            ) : (
-              <CategorySearch createPostData={{categories,showBack,category}} />
-            )}
-          </div>
+        <div className="bg-gray-900 rounded-xl p-6 shadow-lg">
+          {category?.formFields &&
+          category.formFields.length > 0 ? (
+            <CreatePostForm category={category} />
+          ) : (
+            <CategorySearch createPostData={{categories,showBack,category}} />
+          )}
         </div>
       </div>
     </div>

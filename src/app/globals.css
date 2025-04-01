@@ -4,3 +4,12 @@ body {
   direction: rtl;
   font-family: 'Vazirmatn', Arial, sans-serif;
 }
+.scrollbar-hidden {
+  /* فایرفاکس */
+  scrollbar-width: none;
+  /* کروم، سافاری و اج */
+  -webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none; /* اینترنت اکسپلورر */
+}

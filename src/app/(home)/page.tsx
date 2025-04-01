@@ -1,99 +1,30 @@
 'use client';
 
-import { useState } from 'react';
-import Header from '@/components/home/Header';
-import Footer from '@/components/home/Footer';
-import AdCard from '@/components/post/AdCard';
-import FilterSection from '@/components/home/FilterSection';
-import MobileFilters from '@/components/home/MobileFilters';
-import HorizontalCategories from '@/components/home/HorizontalCategories';
-import { categories, filters, advertisements } from '@/data/mockData';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import React from 'react';
+import ListingsGrid from '@/components/listings/ListingsGrid';
+import { listingsData } from '@/data/listingsData';
+import Sidebar from '@/components/layouts/Sidebar';
 
 export default function Home() {
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<number | null>(null);
-
-  // وقتی روی دسته‌بندی کلیک می‌شود
-  const handleCategoryClick = (categoryId: number | null) => {
-    setActiveCategory(categoryId);
-    // اگر در حالت موبایل دسته‌بندی انتخاب شد، فیلتر موبایل را باز کنیم
-    if (categoryId !== null && window.innerWidth < 1024) {
-      setMobileFiltersOpen(true);
-    }
-  };
-
   return (
-    <div className="bg-gray-950 min-h-screen text-gray-100">
-      <Header />
-
-      <div className="container mx-auto px-4 py-6">
-        <div className="text-right mb-6">
-          <h2 className="text-lg font-medium text-gray-100">
-            انواع آگهی‌ها و نیازمندی های مشهد
-          </h2>
-        </div>
-
-        <div className="flex flex-col lg:flex-row-reverse gap-6">
-          {/* Main content */}
-          <div className="flex-1">
-            {/* Quick category selection for mobile */}
-            <HorizontalCategories
-              categories={categories}
-              activeCategory={activeCategory}
-              setActiveCategory={handleCategoryClick}
-            />
-
-            <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-              {advertisements.map((ad) => (
-                <AdCard
-                  key={ad.id}
-                  id={ad.id}
-                  title={ad.title}
-                  subtitle={ad.subtitle}
-                  price={ad.price}
-                  location={ad.location}
-                  image={ad.image}
-                />
-              ))}
-            </div>
-          </div>
-          {/* Sidebar filter section */}
-          <div className="lg:w-72">
-            <div className="hidden lg:block">
-              <FilterSection
-                categories={categories}
-                filters={filters}
-                activeCategory={activeCategory}
-                setActiveCategory={handleCategoryClick}
-              />
-            </div>
-
-            {/* Mobile filter button */}
-            <div className="flex items-center justify-between lg:hidden mb-4">
-              <button
-                type="button"
-                className="text-gray-300 border border-gray-700 rounded-md py-2 px-4 flex items-center text-sm font-medium bg-gray-800 hover:bg-gray-700"
-                onClick={() => setMobileFiltersOpen(true)}
-              >
-                <span>فیلترها</span>
-                <ChevronDownIcon className="mr-1 h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
-          </div>
-
-          {/* Mobile filters */}
-          <MobileFilters
-            filters={filters}
-            open={mobileFiltersOpen}
-            setOpen={setMobileFiltersOpen}
-            activeCategory={activeCategory}
-            setActiveCategory={handleCategoryClick}
-          />
+    <div className="flex container mx-auto flex-col md:flex-row min-h-screen">
+      {/* سایدبار ثابت */}
+      <div className="md:w-64 hidden md:block z-10">
+        <Sidebar isOpen={true} onClose={() => {}} />
+      </div>
+      
+      {/* بخش اصلی با اسکرول بدون اسکرول‌بار */}
+      <div className="flex-grow h-[calc(100vh-10px)] overflow-y-auto scrollbar-hidden">
+        <div className="px-4 py-6">
+          {/* عنوان صفحه */}
+          <h1 className="text-2xl font-bold mb-6 text-gray-100">آگهی‌های اخیر</h1>
+          
+          {/* نمایش گرید آگهی‌ها */}
+          <ListingsGrid listings={listingsData} />
         </div>
       </div>
-
-      <Footer />
     </div>
   );
 }
+
+// استایل‌ها رو می‌تونی به فایل CSS یا Tailwind config اضافه کنی

@@ -1,4 +1,4 @@
-import { Listing } from '@/components/listings/ListingCard';
+import { Listing } from '@/components/post/postCard';
 
 export const listingsData: Listing[] = [
   {

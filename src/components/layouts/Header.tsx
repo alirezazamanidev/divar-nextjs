@@ -236,16 +236,16 @@ export default function Header({}: HeaderProps) {
       <div className="sidebar-state hidden" data-open={sidebarOpen.toString()}></div>
       
       {/* سایدبار موبایل - فقط در صفحه اصلی */}
-      {isHomePage && (
+      {/* {isHomePage && (
         <div className="md:hidden fixed inset-0 z-50 transform transition-transform duration-300" style={{
           transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)'
         }}>
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => setSidebarOpen(false)}></div>
           <div className="relative h-full w-4/5 max-w-sm bg-gray-800 shadow-xl z-20 mr-auto">
-            <Sidebar isOpen={true} onClose={() => setSidebarOpen(false)} />
+            <Sidebar isOpen={true} onClose={() => setSidebarOpen(false)} categoriesData={} />
           </div>
         </div>
-      )}
+      )} */}
     </>
   );
 } 

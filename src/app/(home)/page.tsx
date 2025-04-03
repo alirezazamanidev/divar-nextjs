@@ -1,16 +1,19 @@
-'use client';
 
 import React from 'react';
-import ListingsGrid from '@/components/listings/ListingsGrid';
-import { listingsData } from '@/data/listingsData';
 import Sidebar from '@/components/layouts/Sidebar';
+import { getCategories } from '@/libs/services/category.service';
+import { GetPosts } from '@/libs/services/post.service';
+import PostsGrid from '@/components/post/postsGrid';
 
-export default function Home() {
+export default async function Home({searchParams}:{searchParams:Promise<{category?:string}>}) {
+  const {category}=await searchParams
+  const categorydata=await getCategories({slug:category || ''})
+  const postPaginstion=await GetPosts({});
   return (
     <div className="flex container mx-auto flex-col md:flex-row min-h-screen">
       {/* سایدبار ثابت */}
       <div className="md:w-64 hidden md:block z-10">
-        <Sidebar isOpen={true} onClose={() => {}} />
+        <Sidebar categoriesData={categorydata} />
       </div>
       
       {/* بخش اصلی با اسکرول بدون اسکرول‌بار */}
@@ -20,7 +23,7 @@ export default function Home() {
           <h1 className="text-2xl font-bold mb-6 text-gray-100">آگهی‌های اخیر</h1>
           
           {/* نمایش گرید آگهی‌ها */}
-          <ListingsGrid listings={listingsData} />
+          <PostsGrid postPaginstion={postPaginstion}/>
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
 
 export interface File {
   size: number;
-  mimeType: string;
+  mimetype: string;
   key:string;
   url:string;
 }

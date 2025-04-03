@@ -5,10 +5,10 @@ import { getCategories } from '@/libs/services/category.service';
 import { GetPosts } from '@/libs/services/post.service';
 import PostsGrid from '@/components/post/postsGrid';
 
-export default async function Home({searchParams}:{searchParams:Promise<{category?:string}>}) {
-  const {category}=await searchParams
+export default async function Home({searchParams}:{searchParams:Promise<{category?:string,price?:string}>}) {
+  const {category,price}=await searchParams
   const categorydata=await getCategories({slug:category || ''})
-  const postPaginstion=await GetPosts({});
+  const postPaginstion=await GetPosts({priceRange:price||'',categorySlug:category});
   return (
     <div className="flex container mx-auto flex-col md:flex-row min-h-screen">
       {/* سایدبار ثابت */}

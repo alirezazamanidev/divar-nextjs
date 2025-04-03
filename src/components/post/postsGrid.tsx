@@ -15,6 +15,7 @@ const PostsGrid: React.FC<PostsGridProps> = ({
 }: PostsGridProps) => {
   const searchParams = useSearchParams();
   const category = searchParams.get('category');
+  const price=searchParams.get('price');
   const [posts, setPosts] = useState(postPaginstion.posts ?? []);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -30,7 +31,7 @@ const PostsGrid: React.FC<PostsGridProps> = ({
     setPage(1);
     setHasMore(true);
     getpostsWithChangeQuery();
-  }, [category]);
+  }, [category,price]);
   
   // Load more posts when the loadMoreRef becomes visible
   useEffect(() => {
@@ -44,6 +45,7 @@ const PostsGrid: React.FC<PostsGridProps> = ({
     try {
       const response = await GetPosts({
         categorySlug: category || undefined,
+        priceRange:price ||'',
         page: 1
       });
       setPosts(response.posts);
@@ -63,7 +65,9 @@ const PostsGrid: React.FC<PostsGridProps> = ({
       const nextPage = page + 1;
       const response = await GetPosts({
         categorySlug: category || undefined,
-        page: nextPage
+        page: nextPage,
+        priceRange:price ||'',
+
       });
       
       if (response.posts.length > 0) {

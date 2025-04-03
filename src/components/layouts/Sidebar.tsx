@@ -15,6 +15,11 @@ import {
 } from '@/libs/services/category.service';
 import { useRouter } from 'next/navigation';
 import { useQueryState } from 'nuqs';
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from '@headlessui/react';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -23,10 +28,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ isOpen = false, onClose, categoriesData }: SidebarProps) => {
- 
   const [isMobileOpen, setIsMobileOpen] = useState(isOpen);
-  const [showPriceFilter, setShowPriceFilter] = useState(true);
-  const [showStatusFilter, setShowStatusFilter] = useState(true);
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [hasImage, setHasImage] = useState(false);
@@ -34,9 +36,10 @@ const Sidebar = ({ isOpen = false, onClose, categoriesData }: SidebarProps) => {
   const [categoryData, setCategoryData] =
     useState<ListCategories>(categoriesData);
   const [categorySlug, setCategorySlug] = useQueryState('category');
+  const [price, setPrice] = useQueryState('price');
   const [categoryLevel, setCategoryLevel] = useState(0);
   const router = useRouter();
-  
+
   // Update mobile open state when prop changes
   useEffect(() => {
     setIsMobileOpen(isOpen);
@@ -44,13 +47,20 @@ const Sidebar = ({ isOpen = false, onClose, categoriesData }: SidebarProps) => {
 
   // Update category data when the props change
   useEffect(() => {
-  
-    if(categoryLevel<=2){
+    if (categoryLevel <= 2) {
       getCategoryData(categorySlug || '');
-
     }
-  }, [categorySlug,categoryLevel]);
-  
+  }, [categorySlug, categoryLevel]);
+
+  // Apply price filter when price inputs change
+  useEffect(() => {
+    if (minPrice || maxPrice) {
+      if (minPrice && +minPrice < 0) setMinPrice('');
+      if (maxPrice && +maxPrice < 0) setMaxPrice('');
+      const priceValue = `${minPrice || ''}-${maxPrice || ''}`;
+      setPrice(priceValue);
+    }
+  }, [minPrice, maxPrice]);
 
   const handleBackToParent = async () => {
     if (categoryData.showBack) {
@@ -61,47 +71,38 @@ const Sidebar = ({ isOpen = false, onClose, categoriesData }: SidebarProps) => {
   };
 
   const getCategoryData = async (slug: string) => {
-    const cateData = await getCategories({ slug });
+    const cateData = await getCategories({ slug, });
     setCategoryData(cateData);
   };
-  
+
   const handleCloseMobile = () => {
     setIsMobileOpen(false);
     if (onClose) onClose();
   };
 
-  const applyPriceFilter = () => {
-    if (!minPrice && !maxPrice) return;
-    
-    // Format price=max-min as requested
-    const priceQuery = `${maxPrice || '0'}-${minPrice || '0'}`;
-    router.push(`/?price=${priceQuery}${categorySlug ? `&category=${categorySlug}` : ''}`);
-    if (onClose) onClose();
-  };
-
   const applyStatusFilter = () => {
     let queryParams = new URLSearchParams();
-    
+
     // Add existing category if present
     if (categorySlug) {
       queryParams.append('category', categorySlug);
     }
-    
+
     // Add price filter if present
     if (minPrice || maxPrice) {
       const priceQuery = `${maxPrice || '0'}-${minPrice || '0'}`;
       queryParams.append('price', priceQuery);
     }
-    
+
     // Add status filters
     if (hasImage) {
       queryParams.append('hasImage', 'true');
     }
-    
+
     if (isUrgent) {
       queryParams.append('urgent', 'true');
     }
-    
+
     // Navigate with all filters
     router.push(`/?${queryParams.toString()}`);
     if (onClose) onClose();
@@ -139,113 +140,118 @@ const Sidebar = ({ isOpen = false, onClose, categoriesData }: SidebarProps) => {
   );
 
   const renderFilters = () => (
-    <div className="border-t border-gray-700 pt-1 overflow-y-auto">
+    <div className="border-t border-gray-700 pt-1 ">
       <div className="text-sm font-medium mb-1 p-3 flex items-center text-white">
         <AdjustmentsVerticalIcon className="h-4 w-4 mr-1.5" />
         فیلترها
       </div>
 
       <div className="space-y-1">
-        <div
-          onClick={() => setShowPriceFilter(!showPriceFilter)}
-          className="mx-2 px-3 py-2 flex justify-between items-center cursor-pointer rounded-lg hover:bg-gray-800 transition-all"
-        >
-          <div className="text-sm font-medium flex items-center">
-            <span className="text-red-500 mr-1">₹</span>
-            محدوده قیمت
-          </div>
-          <ChevronDownIcon
-            className={`h-4 w-4 text-gray-400 transition-transform ${
-              showPriceFilter ? 'rotate-180' : ''
-            }`}
-          />
-        </div>
-
-        {showPriceFilter && (
-          <div className="p-3 pt-0 space-y-2 bg-gray-850 mx-2 rounded-lg mb-2">
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-400 mb-1">از</label>
-              <input
-                type="text"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                placeholder="0 تومان"
-                className="rounded-md border border-gray-600 bg-gray-700 bg-opacity-50 text-white px-3 py-1.5 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-red-500 text-sm"
-              />
+        <Disclosure>
+          {({ open }) => (
+            <div>
+              <DisclosureButton className="mx-2 px-3 py-2 flex justify-between items-center w-full cursor-pointer rounded-lg hover:bg-gray-800 transition-all">
+                <div className="text-sm font-medium flex items-center">
+                  <ChevronDownIcon
+                    className={`h-4 w-4 text-gray-400 transition-transform ${
+                      open ? 'rotate-180' : ''
+                    }`}
+                  />
+                  قیمت
+                </div>
+                {price && (
+                  <span
+                    className=" text-xs text-red-500 cursor-pointer"
+                    onClick={() => setPrice(null)}
+                  >
+                    حذف
+                  </span>
+                )}
+              </DisclosureButton>
+              <DisclosurePanel className="p-3 pt-0 space-y-2 bg-gray-850 mx-2 rounded-lg mb-2">
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-400 mb-1">از</label>
+                  <input
+                    type="number"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    placeholder="0 تومان"
+                    className="rounded-md border border-gray-600 bg-gray-700 bg-opacity-50 text-white px-3 py-1.5 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-red-500 text-sm"
+                  />
+                </div>
+                <div className="flex flex-col">
+                  <label className="text-xs text-gray-400 mb-1">تا</label>
+                  <input
+                    type="number"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    placeholder="بدون محدودیت"
+                    className="rounded-md border border-gray-600 bg-gray-700 bg-opacity-50 text-white px-3 py-1.5 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-red-500 text-sm"
+                  />
+                </div>
+              </DisclosurePanel>
             </div>
-            <div className="flex flex-col">
-              <label className="text-xs text-gray-400 mb-1">تا</label>
-              <input
-                type="text"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                placeholder="بدون محدودیت"
-                className="rounded-md border border-gray-600 bg-gray-700 bg-opacity-50 text-white px-3 py-1.5 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-red-500 text-sm"
-              />
-            </div>
-            <button 
-              onClick={applyPriceFilter}
-              className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white py-1.5 rounded-md text-sm transition-colors"
-            >
-              اعمال فیلتر
-            </button>
-          </div>
-        )}
+          )}
+        </Disclosure>
       </div>
 
       <div className="space-y-1">
-        <div
-          onClick={() => setShowStatusFilter(!showStatusFilter)}
-          className="mx-2 px-3 py-2 flex justify-between items-center cursor-pointer rounded-lg hover:bg-gray-800 transition-all"
-        >
-          <div className="text-sm font-medium flex items-center">
-            <span className="text-yellow-500 mr-1">⚡</span>
-            وضعیت آگهی
-          </div>
-          <ChevronDownIcon
-            className={`h-4 w-4 text-gray-400 transition-transform ${
-              showStatusFilter ? 'rotate-180' : ''
-            }`}
-          />
-        </div>
-
-        {showStatusFilter && (
-          <div className="p-3 pt-0 space-y-2 bg-gray-850 mx-2 rounded-lg mb-2">
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="immediate"
-                checked={isUrgent}
-                onChange={(e) => setIsUrgent(e.target.checked)}
-                className="border-gray-600 bg-gray-800 text-red-500 rounded focus:ring-red-500 focus:ring-opacity-25"
-              />
-              <label htmlFor="immediate" className="text-sm ml-2 text-gray-300">
-                فقط فوری‌ها
-              </label>
+        <Disclosure>
+          {({ open }) => (
+            <div>
+              <DisclosureButton className="mx-2 px-3 py-2 flex justify-between items-center w-full cursor-pointer rounded-lg hover:bg-gray-800 transition-all">
+                <div className="text-sm font-medium flex items-center">
+                  <span className="text-yellow-500 mr-1">⚡</span>
+                  وضعیت آگهی
+                </div>
+                <ChevronDownIcon
+                  className={`h-4 w-4 text-gray-400 transition-transform ${
+                    open ? 'rotate-180' : ''
+                  }`}
+                />
+              </DisclosureButton>
+              <DisclosurePanel className="p-3 pt-0 space-y-2 bg-gray-850 mx-2 rounded-lg mb-2">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="immediate"
+                    checked={isUrgent}
+                    onChange={(e) => setIsUrgent(e.target.checked)}
+                    className="border-gray-600 bg-gray-800 text-red-500 rounded focus:ring-red-500 focus:ring-opacity-25"
+                  />
+                  <label
+                    htmlFor="immediate"
+                    className="text-sm ml-2 text-gray-300"
+                  >
+                    فقط فوری‌ها
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="hasimage"
+                    checked={hasImage}
+                    onChange={(e) => setHasImage(e.target.checked)}
+                    className="border-gray-600 bg-gray-800 text-red-500 rounded focus:ring-red-500 focus:ring-opacity-25"
+                  />
+                  <label
+                    htmlFor="hasimage"
+                    className="text-sm ml-2 text-gray-300"
+                  >
+                    فقط عکس‌دار
+                  </label>
+                </div>
+                <button
+                  onClick={applyStatusFilter}
+                  className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white py-1.5 rounded-md text-sm transition-colors"
+                >
+                  اعمال فیلتر
+                </button>
+              </DisclosurePanel>
             </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="hasimage"
-                checked={hasImage}
-                onChange={(e) => setHasImage(e.target.checked)}
-                className="border-gray-600 bg-gray-800 text-red-500 rounded focus:ring-red-500 focus:ring-opacity-25"
-              />
-              <label htmlFor="hasimage" className="text-sm ml-2 text-gray-300">
-                فقط عکس‌دار
-              </label>
-            </div>
-            <button 
-              onClick={applyStatusFilter}
-              className="mt-2 w-full bg-red-500 hover:bg-red-600 text-white py-1.5 rounded-md text-sm transition-colors"
-            >
-              اعمال فیلتر
-            </button>
-          </div>
-        )}
+          )}
+        </Disclosure>
       </div>
-
-   
     </div>
   );
 
@@ -269,12 +275,11 @@ const Sidebar = ({ isOpen = false, onClose, categoriesData }: SidebarProps) => {
         </div>
       )}
 
-  
       <ul>
         {categoryData.categories.map((category) => (
           <li key={category.id} className="border-b border-gray-800">
             <div
-              onClick={() =>{
+              onClick={() => {
                 setCategorySlug(category.slug);
                 setCategoryLevel(categoryLevel + 1);
               }}
@@ -286,28 +291,10 @@ const Sidebar = ({ isOpen = false, onClose, categoriesData }: SidebarProps) => {
                 )}
                 <span className="text-sm">{category.title}</span>
               </div>
-              {/* {category.children && category.children.length > 0 && categoryLevel < 2 && (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1.5}
-                  stroke="currentColor"
-                  className="h-3.5 w-3.5 text-gray-500"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 19.5L8.25 12l7.5-7.5"
-                  />
-                </svg>
-              )} */}
             </div>
           </li>
         ))}
       </ul>
-
-    
 
       {/* Add filters section */}
       {renderFilters()}

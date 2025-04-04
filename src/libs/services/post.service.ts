@@ -81,3 +81,9 @@ export async function GetPosts({
   });
   return res;
 }
+export async function GetSinglePostBySlug(slug:string){
+
+  const res=await Feacher<{post:Post}>(`/post/get-by-slug/${slug}`)
+  if(!res) return null;
+  return res.post;
+}

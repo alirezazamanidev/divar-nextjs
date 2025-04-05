@@ -1,3 +1,4 @@
+import { handleApiError } from '../helpers/errorHandler';
 import { Feacher } from '../helpers/Feacher';
 import { Category } from '../models/category';
 import { Post } from '../models/post';
@@ -83,7 +84,9 @@ export async function GetPosts({
 }
 export async function GetSinglePostBySlug(slug:string){
 
-  const res=await Feacher<{post:Post}>(`/post/get-by-slug/${slug}`)
-  if(!res) return null;
-  return res.post;
+        const res=await Feacher<{post:Post}>(`/post/get-by-slug/${slug}`)
+        if(!res) return null;
+        return res.post;
+
+
 }

@@ -13,7 +13,7 @@ type RequestOptions = RequestInit & {
 export async function Feacher<T>(
     endpoint: string,
     options: RequestOptions = {}
-  ): Promise<T> {
+  ): Promise<T|null> {
     const { params, next, ...fetchOptions } = options;
   
     // ساخت URL کامل
@@ -41,7 +41,7 @@ export async function Feacher<T>(
         },
         next,
       });
-  
+
       if (!response.ok) {
         const errorData = await response.text()
           .catch(() => 'خطایی در دریافت جزئیات خطا رخ داد');

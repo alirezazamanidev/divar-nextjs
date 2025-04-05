@@ -1,7 +1,7 @@
 'use client';
 import { Post } from "@/libs/models/post";
 import { Bookmark, Share2, X, MapPin, Calendar, Phone, MessageCircle, Copy } from "lucide-react";
-import { formatDateNow } from "@/libs/utils/functions.util";
+import { formatDateNow, formatPrice } from "@/libs/utils/functions.util";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Dialog, DialogPanel, Transition } from "@headlessui/react";
 import Image from "next/image";
@@ -10,6 +10,14 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ROUTES } from "@/data/routes";
+import useSocket from "@/libs/hooks/useSocket";
+import { toast } from "react-hot-toast";
+import EmbeddedChat from "@/components/chat/EmbeddedChat";
+import StartConversation from "@/components/chat/StartConversation";
+import { useAuth } from "@/libs/hooks/useAuth";
 
 // تنظیمات اسلایدر
 const sliderSettings = {
@@ -46,11 +54,14 @@ const DynamicMarker = dynamic(() => import("react-leaflet").then((mod) => mod.Ma
 const DynamicPopup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), { ssr: false });
 
 export function SinglePostLayout({ post }: { post: Post }) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [showAllDetails, setShowAllDetails] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showChatBox, setShowChatBox] = useState(false);
+  const {user,isLoading}=useAuth()
 
   // تنظیمات Leaflet برای رفع باگ آیکون‌ها
   useEffect(() => {
@@ -75,10 +86,7 @@ export function SinglePostLayout({ post }: { post: Post }) {
     [post.location]
   );
 
-  const formatPrice = useCallback((value: string | number) => {
-    if (!value) return "نامشخص";
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }, []);
+ 
 
   const isPriceRelated = useCallback((key: string) => {
     const priceKeywords = ["قیمت", "ودیعه", "اجاره", "رهن", "ماهانه", "تومان", "ریال", "هزینه"];
@@ -110,6 +118,18 @@ export function SinglePostLayout({ post }: { post: Post }) {
       setTimeout(() => setCopySuccess(false), 2000);
     });
   };
+
+  const navigateToChat = () => {
+    setShowChatBox(true);
+  };
+
+  // بررسی اینکه آیا کاربر صاحب آگهی است یا خیر
+  const isPostOwner = useMemo(() => {
+  
+
+    return post.userId===user?.id
+    
+  }, [post.user,isLoading]);
 
   return (
     <div className="flex flex-col bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl shadow-2xl overflow-hidden w-full max-w-7xl mx-auto">
@@ -243,6 +263,7 @@ export function SinglePostLayout({ post }: { post: Post }) {
 
         {/* Right Section - Details */}
         <div className="w-full lg:w-2/5 bg-gray-900/50 p-4 sm:p-6 border-t lg:border-t-0 lg:border-r border-gray-800">
+       
           {/* Price Section */}
           {post.options && (
             <div className="mb-4 sm:mb-6">
@@ -268,28 +289,63 @@ export function SinglePostLayout({ post }: { post: Post }) {
           )}
 
           {/* Contact Buttons */}
-          <div className="flex gap-2 sm:gap-3 mb-5 sm:mb-8">
-            <button
-              onClick={() => setShowContact(!showContact)}
-              className="flex-1 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-colors duration-300 font-medium shadow-lg shadow-purple-900/30 flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
-              aria-label="نمایش اطلاعات تماس"
-            >
-              <Phone size={16} className="sm:hidden" />
-              <Phone size={18} className="hidden sm:block" />
-              <span>اطلاعات تماس</span>
-            </button>
-            {post.allowChatMessages && (
+          <div className="flex flex-col gap-2 sm:gap-3 mb-5 sm:mb-8">
+            <div className="flex gap-2 sm:gap-3">
               <button
-                className="flex-1 py-2.5 sm:py-3 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 transition-colors duration-300 font-medium flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
-                aria-label="ارسال پیام چت"
+                onClick={() => setShowContact(!showContact)}
+                className="flex-1 py-2.5 sm:py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-colors duration-300 font-medium shadow-lg shadow-purple-900/30 flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
+                aria-label="نمایش اطلاعات تماس"
               >
-                <MessageCircle size={16} className="sm:hidden" />
-                <MessageCircle size={18} className="hidden sm:block" />
-                <span>چت</span>
+                <Phone size={16} className="sm:hidden" />
+                <Phone size={18} className="hidden sm:block" />
+                <span>اطلاعات تماس</span>
               </button>
+              {post.allowChatMessages && !isPostOwner && (
+                <button
+                  onClick={navigateToChat}
+                  className="flex-1 py-2.5 sm:py-3 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 transition-colors duration-300 font-medium flex items-center justify-center gap-1 sm:gap-2 text-sm sm:text-base"
+                  aria-label="ارسال پیام چت"
+                >
+                  <MessageCircle size={16} className="sm:hidden" />
+                  <MessageCircle size={18} className="hidden sm:block" />
+                  <span>چت</span>
+                </button>
+              )}
+            </div>
+            
+            {/* Chat Box - Directly below chat button */}
+            {post.allowChatMessages && !isPostOwner && (
+              <Transition
+                show={showChatBox}
+                enter="transition ease-out duration-200"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="transition ease-in duration-150"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <div className="relative bg-gray-800/90 p-3 sm:p-5 rounded-xl border border-purple-700/50 shadow-lg mt-2">
+                  {/* Arrow pointing to chat button */}
+                  <div className="absolute -top-2 right-14 sm:right-16 w-4 h-4 bg-gray-800 border-t border-r border-purple-700/50 transform rotate-[-45deg] z-10"></div>
+                  
+                  <div className="flex items-center justify-between mb-3">
+                    <button 
+                      onClick={() => setShowChatBox(false)}
+                      className="text-gray-400 hover:text-white p-1 rounded-full transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                    <h3 className="text-base sm:text-lg font-bold text-purple-300 flex items-center">
+                      <span>گفتگو با فروشنده</span>
+                      <div className="w-6 sm:w-8 h-1 bg-purple-500 rounded-full ml-2" />
+                    </h3>
+                  </div>
+                  <StartConversation postId={post.id} postTitle={post.title} />
+                </div>
+              </Transition>
             )}
           </div>
-
+          
           {/* Contact Info */}
           {showContact && (
             <div className="mb-4 sm:mb-6 bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-xl p-3 sm:p-4 border border-purple-800/30 animate-fadeIn">

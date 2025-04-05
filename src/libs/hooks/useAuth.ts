@@ -37,6 +37,7 @@ export const useAuth = (): AuthResponse => {
     }
   );
 
+
   return {
     user: user || null,
     isLoading,

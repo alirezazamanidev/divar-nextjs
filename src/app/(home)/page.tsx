@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Sidebar from '@/components/layouts/Sidebar';
 import { getCategories } from '@/libs/services/category.service';
@@ -13,7 +12,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{categor
     <div className="flex container mx-auto flex-col md:flex-row min-h-screen">
       {/* سایدبار ثابت */}
       <div className="md:w-64 hidden md:block z-10">
-        <Sidebar categoriesData={categorydata} />
+        {categorydata && <Sidebar categoriesData={categorydata} />}
       </div>
       
       {/* بخش اصلی با اسکرول بدون اسکرول‌بار */}
@@ -23,7 +22,7 @@ export default async function Home({searchParams}:{searchParams:Promise<{categor
           <h1 className="text-2xl font-bold mb-6 text-gray-100">آگهی‌های اخیر</h1>
           
           {/* نمایش گرید آگهی‌ها */}
-          <PostsGrid postPaginstion={postPaginstion}/>
+          {postPaginstion && <PostsGrid postPaginstion={postPaginstion}/>}
         </div>
       </div>
     </div>

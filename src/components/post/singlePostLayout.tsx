@@ -11,13 +11,11 @@ import "slick-carousel/slick/slick-theme.css";
 import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ROUTES } from "@/data/routes";
-import useSocket from "@/libs/hooks/useSocket";
-import { toast } from "react-hot-toast";
-import EmbeddedChat from "@/components/chat/EmbeddedChat";
+
+
 import StartConversation from "@/components/chat/StartConversation";
 import { useAuth } from "@/libs/hooks/useAuth";
+import { SocketProvider } from "@/libs/hooks/useSocket";
 
 // تنظیمات اسلایدر
 const sliderSettings = {
@@ -60,7 +58,6 @@ export function SinglePostLayout({ post }: { post: Post }) {
   const [showContact, setShowContact] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
-  const [showChatBox, setShowChatBox] = useState(false);
   const {user,isLoading}=useAuth()
 
   // تنظیمات Leaflet برای رفع باگ آیکون‌ها
@@ -120,7 +117,7 @@ export function SinglePostLayout({ post }: { post: Post }) {
   };
 
   const navigateToChat = () => {
-    setShowChatBox(true);
+    router.push(`/chat?postId=${post.id}`);
   };
 
   // بررسی اینکه آیا کاربر صاحب آگهی است یا خیر
@@ -312,38 +309,6 @@ export function SinglePostLayout({ post }: { post: Post }) {
                 </button>
               )}
             </div>
-            
-            {/* Chat Box - Directly below chat button */}
-            {post.allowChatMessages && !isPostOwner && (
-              <Transition
-                show={showChatBox}
-                enter="transition ease-out duration-200"
-                enterFrom="opacity-0 scale-95"
-                enterTo="opacity-100 scale-100"
-                leave="transition ease-in duration-150"
-                leaveFrom="opacity-100 scale-100"
-                leaveTo="opacity-0 scale-95"
-              >
-                <div className="relative bg-gray-800/90 p-3 sm:p-5 rounded-xl border border-purple-700/50 shadow-lg mt-2">
-                  {/* Arrow pointing to chat button */}
-                  <div className="absolute -top-2 right-14 sm:right-16 w-4 h-4 bg-gray-800 border-t border-r border-purple-700/50 transform rotate-[-45deg] z-10"></div>
-                  
-                  <div className="flex items-center justify-between mb-3">
-                    <button 
-                      onClick={() => setShowChatBox(false)}
-                      className="text-gray-400 hover:text-white p-1 rounded-full transition-colors"
-                    >
-                      <X size={16} />
-                    </button>
-                    <h3 className="text-base sm:text-lg font-bold text-purple-300 flex items-center">
-                      <span>گفتگو با فروشنده</span>
-                      <div className="w-6 sm:w-8 h-1 bg-purple-500 rounded-full ml-2" />
-                    </h3>
-                  </div>
-                  <StartConversation postId={post.id} postTitle={post.title} />
-                </div>
-              </Transition>
-            )}
           </div>
           
           {/* Contact Info */}

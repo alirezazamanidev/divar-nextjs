@@ -29,4 +29,3 @@ export default async function Home({searchParams}:{searchParams:Promise<{categor
   );
 }
 
-// استایل‌ها رو می‌تونی به فایل CSS یا Tailwind config اضافه کنی

@@ -12,10 +12,10 @@ import dynamic from "next/dynamic";
 import "leaflet/dist/leaflet.css";
 import { useRouter } from "next/navigation";
 
-
-import StartConversation from "@/components/chat/StartConversation";
 import { useAuth } from "@/libs/hooks/useAuth";
 import { SocketProvider } from "@/libs/hooks/useSocket";
+import { handleApiError } from "@/libs/helpers/errorHandler";
+import { callApi } from "@/libs/helpers/callapi";
 
 // تنظیمات اسلایدر
 const sliderSettings = {
@@ -116,9 +116,24 @@ export function SinglePostLayout({ post }: { post: Post }) {
     });
   };
 
-  const navigateToChat = () => {
-    router.push(`/chat?postId=${post.id}`);
-  };
+  const navigateToChat = async()=>{
+    
+    try {
+      const res=await callApi.get(`chat/check-exist/:${post.id}`);
+      if(res.status===200){
+
+        if(res?.data){
+          router.push(`chat/:${res.data.id}`);
+        }else {
+          console.log('ok')
+          
+         router.push(`/chat/new?postId=${post.id}`)
+      }
+      }
+    } catch (error) {
+      handleApiError(error)
+    }
+  }
 
   // بررسی اینکه آیا کاربر صاحب آگهی است یا خیر
   const isPostOwner = useMemo(() => {

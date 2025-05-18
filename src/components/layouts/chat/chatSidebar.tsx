@@ -4,6 +4,7 @@ import { useAuth } from '@/libs/hooks/useAuth';
 import { useSocket } from '@/libs/hooks/useSocket';
 import { ChatRoom } from '@/libs/models/room';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function ChatSideBar() {
@@ -15,7 +16,7 @@ export default function ChatSideBar() {
   useEffect(()=>{
     if(!socket) return
     socket.on('get-chats',(chats:ChatRoom)=>{
-      console.log(chats);
+     
       
       setConversations(chats)
     })
@@ -42,7 +43,8 @@ export default function ChatSideBar() {
           conversations.map((conversation:ChatRoom) => {
 
             return (
-              <div
+              <Link
+              href={`/chat/${conversation.id}`}
                 key={conversation.id}
                 className={`flex p-4 border-b border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
                   true ? 'bg-gray-200 dark:bg-gray-700' : ''
@@ -87,7 +89,7 @@ export default function ChatSideBar() {
                    
                   </div>
                 </div>
-              </div>
+              </Link>
             );
           })
         )}

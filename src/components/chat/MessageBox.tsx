@@ -44,7 +44,7 @@ export default function MessaqgeBox(){
             <div
               key={message.id}
               className={`flex mb-4 ${
-                isCurrentUser ? 'justify-end' : 'justify-start'
+                isCurrentUser ? 'justify-start' : 'justify-end'
               }`}
             >
               <div

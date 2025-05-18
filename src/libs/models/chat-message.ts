@@ -8,9 +8,9 @@ export interface ChatMessage {
 
   senderId: string;
 
-  message: string;
+  text: string;
 
-  isRead: boolean;
+  seen: boolean;
 
   sentAt: Date;
 

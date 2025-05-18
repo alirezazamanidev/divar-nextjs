@@ -6,19 +6,16 @@ export interface ChatRoom {
   id: string;
   postId: string;
 
-  senderId: string;
+  sellerId: string;
 
-  receiverId: string;
-
+  buyeerId: string;
   isActive: boolean;
 
   created_at: Date;
 
-  lastMessageAt: Date;
   // Relations
-  sender: User;
-
-  receiver: User;
+  lastMessage:ChatMessage
+  post:Post
 
   messages: ChatMessage[];
 }

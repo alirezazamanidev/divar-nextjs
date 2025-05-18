@@ -38,9 +38,7 @@ export default function MessaqgeBox(){
   
     return (
         <div className="flex-1 p-4 overflow-y-auto flex flex-col h-[calc(100vh-280px)]">
-        {messages.map((message:any) => {
-          console.log(message);
-          
+        {messages.map((message:any) => { 
           const isCurrentUser = message.senderId === user?.id
           return (
             <div

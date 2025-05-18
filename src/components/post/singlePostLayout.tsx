@@ -123,12 +123,12 @@ export function SinglePostLayout({ post }: { post: Post }) {
      
       if(res.status===200){
         
+        
         if(res?.data){
           router.push(`/chat/${res.data.id}`);
         }else {
-          console.log('ok')
           
-         router.push(`/chat/new?postId=${post.id}`)
+          router.push(`/chat/new?postId=${post.id}`)
       }
       }
     } catch (error) {
@@ -144,6 +144,7 @@ export function SinglePostLayout({ post }: { post: Post }) {
     
   }, [post.user,isLoading]);
 
+         
   return (
     <div className="flex flex-col bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl shadow-2xl overflow-hidden w-full max-w-7xl mx-auto">
       {/* Header */}

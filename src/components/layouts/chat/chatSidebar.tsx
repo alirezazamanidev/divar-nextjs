@@ -12,15 +12,18 @@ export default function ChatSideBar() {
   const [loading, setLoading] = useState(false);
   const { socket } = useSocket();
 
-
-  useEffect(()=>{
-    if(!socket) return
-    socket.on('get-chats',(chats:ChatRoom)=>{
-     
-      
-      setConversations(chats)
-    })
-  },[socket])
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('get-chats', (chats: ChatRoom) => {
+      setConversations(chats);
+    });
+    socket.on('add-chat', (chat: ChatRoom) => {
+      setConversations((prev: ChatRoom[]) => [...prev, chat]);
+    });
+    return () => {
+      socket.off('get-chats');
+    };
+  }, [socket]);
 
   return (
     <div className="w-full md:w-1/3 border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -40,23 +43,21 @@ export default function ChatSideBar() {
             </p>
           </div>
         ) : (
-          conversations.map((conversation:ChatRoom) => {
-
+          conversations.map((conversation: ChatRoom) => {
             return (
               <Link
-              href={`/chat/${conversation.id}`}
+                href={`/chat/${conversation.id}`}
                 key={conversation.id}
                 className={`flex p-4 border-b border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer ${
                   true ? 'bg-gray-200 dark:bg-gray-700' : ''
                 }`}
-              
               >
                 <div className="relative mr-3">
                   <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 overflow-hidden rounded-md">
                     {conversation.post.mediaFiles[0] ? (
                       <Image
-                      width={100}
-                      height={100}
+                        width={100}
+                        height={100}
                         src={conversation.post.mediaFiles[0].url}
                         alt={conversation?.post?.title}
                         className="w-full h-full object-cover"
@@ -84,9 +85,8 @@ export default function ChatSideBar() {
 
                   <div className="mt-1 flex justify-between items-center">
                     <div className="mr-3 text-sm text-gray-600 dark:text-gray-300 truncate max-w-[180px]">
-                      {conversation.lastMessage.text}
+                      {conversation?.lastMessage?.text}
                     </div>
-                   
                   </div>
                 </div>
               </Link>

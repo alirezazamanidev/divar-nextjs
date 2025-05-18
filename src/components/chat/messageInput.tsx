@@ -1,9 +1,10 @@
 'use client';
 
 import { useSocket } from '@/libs/hooks/useSocket';
+import { debounce } from '@/libs/utils/functions.util';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 export default function MessageInput() {
   const router = useRouter();
@@ -13,10 +14,20 @@ export default function MessageInput() {
   const { socket } = useSocket();
   const [chatId, setChatId] = useState(id !== 'new' && !postId ? id : null);
   const [msg, setMsg] = useState('');
+  const emitTyping = useMemo(
+    () =>
+      debounce(() => {
+        if (!socket) return;
+        if (chatId) {
+          socket.emit('typing', { roomId: chatId });
+        }
+      }, 500),
+    [socket],
+  );
 
-  const sendNewMessage = (e:any) => {
-    e.preventDefault()
-   
+  const sendNewMessage = (e: any) => {
+    e.preventDefault();
+
     if (chatId) {
       socket?.emit('send.message', { roomId: chatId, text: msg });
     } else {
@@ -36,17 +47,14 @@ export default function MessageInput() {
             placeholder="پیام خود را بنویسید..."
             value={msg}
             onChange={(e) => {
-              setMsg(e.target.value)
-              if(!socket) return;
-              if(chatId){
-                socket.emit('typing',{roomId:chatId})
-              }
+              setMsg(e.target.value);
+              emitTyping();
             }}
             //   onKeyDown={handleKeyDown}
           />
           <button
             type="submit"
-            className="ml-2 bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 h-12 flex-shrink-0 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mr-2 bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 h-12 flex-shrink-0 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={!msg.trim()}
           >
             <svg

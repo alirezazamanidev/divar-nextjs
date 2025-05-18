@@ -1,6 +1,30 @@
 'use client';
 
+import { useSocket } from "@/libs/hooks/useSocket";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+
+import { useState } from "react";
+
 export default function MessageInput() {
+  const router=useRouter();
+  const searchParams = useSearchParams();
+  const { id } = useParams();
+  const postId = searchParams.get('postId');
+  const { socket } = useSocket();
+  const [chatId, setChatId] = useState(id !== 'new' && !postId ? id : null);
+  const [msg,setMsg]=useState('');
+
+  const sendNewMessage=()=>{
+    if(chatId){
+      socket?.emit('send.message',{roomId:chatId,text:msg})
+    }else{
+      socket?.emit('send.message',{postId,text:msg},(roomId:string)=>{
+        router.replace(`${roomId}`);
+      })
+    }
+    setMsg('');
+  }
+
   return (
     <>
       <div className="p-3 border-t border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -9,14 +33,14 @@ export default function MessageInput() {
             className="flex-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-right resize-none"
             placeholder="پیام خود را بنویسید..."
             rows={2}
-            //   value={newMessage}
-            //   onChange={(e) => setNewMessage(e.target.value)}
+              value={msg}
+              onChange={(e) => setMsg(e.target.value)}
             //   onKeyDown={handleKeyDown}
           />
           <button
             className="ml-2 bg-red-500 hover:bg-red-600 text-white rounded-lg px-4 h-12 flex-shrink-0 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-            //   onClick={sendNewMessage}
-            //   disabled={!newMessage.trim()}
+              onClick={sendNewMessage}
+              disabled={!msg.trim()}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

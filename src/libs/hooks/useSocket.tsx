@@ -20,7 +20,6 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Socket URL validation
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
-    console.log(socketUrl);
     
     if (!socketUrl) {
       console.error('Socket URL is not defined in environment variables');
@@ -29,7 +28,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Initialize socket connection with error handling
     const socketInstance = io(socketUrl, {
-      withCredentials: true,
+   withCredentials:true,
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,

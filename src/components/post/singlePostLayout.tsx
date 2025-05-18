@@ -119,11 +119,12 @@ export function SinglePostLayout({ post }: { post: Post }) {
   const navigateToChat = async()=>{
     
     try {
-      const res=await callApi.get(`chat/check-exist/:${post.id}`);
+      const res=await callApi.get(`chat/check-exist/${post.id}`);
+     
       if(res.status===200){
-
+        
         if(res?.data){
-          router.push(`chat/:${res.data.id}`);
+          router.push(`/chat/${res.data.id}`);
         }else {
           console.log('ok')
           

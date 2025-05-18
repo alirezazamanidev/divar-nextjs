@@ -28,6 +28,10 @@ export default function MessaqgeBox(){
       socket.on('newMessage',(message)=>{
         setMessages((prev:any) => [...prev, message]);
       })
+      socket.on('isTyping',(data)=>{
+        console.log("user typing =>",data);
+        
+      })
 
 
       return ()=>{

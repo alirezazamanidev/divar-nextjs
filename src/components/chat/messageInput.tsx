@@ -35,7 +35,13 @@ export default function MessageInput() {
             className="flex-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-1 text-right resize-none"
             placeholder="پیام خود را بنویسید..."
             value={msg}
-            onChange={(e) => setMsg(e.target.value)}
+            onChange={(e) => {
+              setMsg(e.target.value)
+              if(!socket) return;
+              if(chatId){
+                socket.emit('typing',{roomId:chatId})
+              }
+            }}
             //   onKeyDown={handleKeyDown}
           />
           <button

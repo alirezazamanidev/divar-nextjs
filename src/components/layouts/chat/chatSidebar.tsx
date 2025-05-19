@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/libs/hooks/useAuth';
 import { useSocket } from '@/libs/hooks/useSocket';
+import { ChatMessage } from '@/libs/models/chat-message';
 import { ChatRoom } from '@/libs/models/room';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ export default function ChatSideBar() {
   const [conversations, setConversations] = useState<any>([]);
   const [loading, setLoading] = useState(false);
   const { socket } = useSocket();
+  const {user}=useAuth();
 
   useEffect(() => {
     if (!socket) return;
@@ -20,11 +22,28 @@ export default function ChatSideBar() {
     socket.on('add-chat', (chat: ChatRoom) => {
       setConversations((prev: ChatRoom[]) => [...prev, chat]);
     });
+    socket.on('update-lastmessage', (msg: ChatMessage) => {
+      console.log('Notification received:', msg);
+      setConversations((prev: ChatRoom[]) =>
+        prev.map((conv) =>
+          conv.id === msg.roomId ? { ...conv, lastMessage: msg } : conv,
+        ),
+      );
+    });
+
     return () => {
       socket.off('get-chats');
+
+      socket.off('add-chat');
     };
   }, [socket]);
 
+  // useEffect(()=>{
+  //   if(!socket)return
+  //   socket.on('newMessage', (msg: ChatMessage) => {
+  //     console.log(msg);
+  //   });
+  // },[socket])
   return (
     <div className="w-full md:w-1/3 border-r border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
       <div className="p-4 border-b border-gray-300 dark:border-gray-700">
@@ -44,6 +63,7 @@ export default function ChatSideBar() {
           </div>
         ) : (
           conversations.map((conversation: ChatRoom) => {
+          
             return (
               <Link
                 href={`/chat/${conversation.id}`}
@@ -53,6 +73,9 @@ export default function ChatSideBar() {
                 }`}
               >
                 <div className="relative mr-3">
+                {(!conversation.lastMessage.seen && conversation.lastMessage.senderId!==user?.id)  &&(
+                    <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 animate-pulse border-2 border-white dark:border-gray-800"></span>
+                  )}
                   <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 overflow-hidden rounded-md">
                     {conversation.post.mediaFiles[0] ? (
                       <Image
@@ -68,11 +91,7 @@ export default function ChatSideBar() {
                       </div>
                     )}
                   </div>
-                  {/* {conversation.unreadCount > 0 && (
-                    <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {conversation.unreadCount}
-                    </div>
-                  )} */}
+            
                 </div>
 
                 <div className="flex-1 ml-3 text-right">
